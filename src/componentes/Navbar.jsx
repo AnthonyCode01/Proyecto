@@ -112,14 +112,16 @@ function Navbar({
   setPassword("");
 
 };
-const handleGoogleLogin = (credentialResponse) => {
+const handleGoogleLogin = (
+  credentialResponse
+) => {
 
   const userData =
     jwtDecode(
       credentialResponse.credential
     );
 
-  setUsuario({
+  const user = {
 
     nombre:
       userData.name,
@@ -130,7 +132,14 @@ const handleGoogleLogin = (credentialResponse) => {
     foto:
       userData.picture,
 
-  });
+  };
+
+  localStorage.setItem(
+    "usuario",
+    JSON.stringify(user)
+  );
+
+  setUsuario(user);
 
   setMostrarLogin(false);
 
