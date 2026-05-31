@@ -34,11 +34,6 @@ function Navbar({
   const [errorLogin, setErrorLogin] =
     useState("");
 
-  // ===== CARRITO =====
-
-  const [mostrarCarrito, setMostrarCarrito] =
-    useState(false);
-
   // ===== BUSCADOR =====
 
   const buscarCurso = (e) => {
@@ -296,12 +291,9 @@ function Navbar({
           <div
             className="cart"
             onClick={() =>
-
-              usuario &&
-              setMostrarCarrito(
-                !mostrarCarrito
-              )
-
+              usuario
+                ? navigate("/carrito")
+                : setMostrarLogin(true)
             }
           >
 
@@ -472,51 +464,6 @@ function Navbar({
             </p>
 
           </form>
-
-        </div>
-
-      )}
-
-      {/* ===== CARRITO ===== */}
-
-      {mostrarCarrito && (
-
-        <div className="cart-panel">
-
-          <h2>
-            Carrito de compras
-          </h2>
-
-          {carrito.length === 0 ? (
-
-            <p>
-              No hay cursos agregados.
-            </p>
-
-          ) : (
-
-            carrito.map(
-              (curso, index) => (
-
-                <div
-                  className="cart-item"
-                  key={index}
-                >
-
-                  <h3>
-                    {curso.titulo}
-                  </h3>
-
-                  <p>
-                    S/ {curso.precio}
-                  </p>
-
-                </div>
-
-              )
-            )
-
-          )}
 
         </div>
 

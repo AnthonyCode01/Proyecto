@@ -17,6 +17,7 @@ import Footer from "./componentes/Footer.jsx";
 import Category from "./componentes/Category.jsx";
 import ProductDetail from "./componentes/ProductDetail.jsx";
 import Users from "./componentes/Users.jsx";
+import Carrito from "./componentes/Carrito.jsx";
 import cursosData from "./data/cursos.js";
 
 function App() {
@@ -509,6 +510,19 @@ function App() {
 
               </section>
 
+            }
+          />
+
+          {/* ===== CARRITO ===== */}
+
+          <Route
+            path="/carrito"
+            element={
+              <Carrito
+                carrito={carrito}
+                setCarrito={setCarrito}
+                usuario={usuario}
+              />
             }
           />
 
