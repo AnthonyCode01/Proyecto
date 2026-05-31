@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 import {
   Link,
@@ -67,51 +69,72 @@ function Navbar({
 
   const handleLogin = (e) => {
 
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!email || !password) {
+  if (!email || !password) {
 
-      setErrorLogin(
-        "Completa todos los campos"
-      );
+    setErrorLogin(
+      "Completa todos los campos"
+    );
 
-      return;
-    }
+    return;
+  }
 
-    if (
-      !tiene8 ||
-      !tieneMayus ||
-      !tieneNumero ||
-      !tieneSimbolo
-    ) {
+  if (
+    !tiene8 ||
+    !tieneMayus ||
+    !tieneNumero ||
+    !tieneSimbolo
+  ) {
 
-      setErrorLogin(
-        "La contraseña no cumple los requisitos"
-      );
+    setErrorLogin(
+      "La contraseña no cumple los requisitos"
+    );
 
-      return;
-    }
+    return;
+  }
 
-    // LOGIN EXITOSO
+  setUsuario({
 
-    setUsuario({
+    email,
 
-      email,
+    nombre:
+      email.split("@")[0],
 
-      nombre:
-        email.split("@")[0],
+  });
 
-    });
+  setErrorLogin("");
 
-    setErrorLogin("");
+  setMostrarLogin(false);
 
-    setMostrarLogin(false);
+  setEmail("");
 
-    setEmail("");
+  setPassword("");
 
-    setPassword("");
+};
+const handleGoogleLogin = (credentialResponse) => {
 
-  };
+  const userData =
+    jwtDecode(
+      credentialResponse.credential
+    );
+
+  setUsuario({
+
+    nombre:
+      userData.name,
+
+    email:
+      userData.email,
+
+    foto:
+      userData.picture,
+
+  });
+
+  setMostrarLogin(false);
+
+};
 
   return (
 
@@ -457,9 +480,16 @@ function Navbar({
 
             <div className="google-login">
 
-              🌐 Continuar con Google
+                   <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => {
+                     console.log(
+                      "Error Login Google"
+                     );
+                  }}
+                  />
 
-            </div>
+              </div>
 
             <p className="register-text">
 
