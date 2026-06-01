@@ -32,9 +32,13 @@ function Navbar({
 
   const [password, setPassword] =
     useState("");
+  
+  const [mostrarPassword, setMostrarPassword] =
+  useState(false);
 
   const [errorLogin, setErrorLogin] =
     useState("");
+
  /* ====REGISTRO==== */
   const [mostrarRegistro, setMostrarRegistro] =
   useState(false);
@@ -96,30 +100,50 @@ function Navbar({
     );
 
     return;
+
   }
 
-  if (
-    !tiene8 ||
-    !tieneMayus ||
-    !tieneNumero ||
-    !tieneSimbolo
-  ) {
+  const usuariosGuardados =
+    JSON.parse(
+      localStorage.getItem(
+        "usuarios"
+      )
+    ) || [];
+
+  const usuarioEncontrado =
+    usuariosGuardados.find(
+      (user) =>
+        user.email === email &&
+        user.password === password
+    );
+
+  if (!usuarioEncontrado) {
 
     setErrorLogin(
-      "La contraseña no cumple los requisitos"
+      "Correo o contraseña incorrectos"
     );
 
     return;
+
   }
 
-  setUsuario({
+  setUsuario(
+  usuarioEncontrado
+);
 
-    email,
+localStorage.setItem(
+  "usuario",
+  JSON.stringify(
+    usuarioEncontrado
+  )
+);
 
-    nombre:
-      email.split("@")[0],
-
-  });
+  localStorage.setItem(
+    "usuario",
+    JSON.stringify(
+      usuarioEncontrado
+    )
+  );
 
   setErrorLogin("");
 
@@ -497,13 +521,25 @@ const handleGoogleLogin = (
             </label>
 
             <input
-              type="password"
+              type={mostrarPassword? "text": "password"}
               placeholder="Tu contraseña"
               value={password}
               onChange={(e) =>
                 setPassword(e.target.value)
               }
             />
+            <button
+              type="button"
+              onClick={() =>
+                setMostrarPassword(
+              !mostrarPassword
+               )
+              }
+            >
+              {mostrarPassword
+               ? "Ocultar"
+               : "Mostrar"}
+            </button>
 
             {password.length > 0 && (
 
@@ -543,13 +579,6 @@ const handleGoogleLogin = (
 
             <div className="login-options">
 
-              <label>
-
-                <input type="checkbox" />
-
-                Recordarme
-
-              </label>
 
               <span>
                 ¿Olvidaste tu contraseña?
