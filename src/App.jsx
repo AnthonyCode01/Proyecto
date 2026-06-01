@@ -46,7 +46,16 @@ function App() {
   // ===== USUARIO =====
 
   const [usuario, setUsuario] =
-    useState(null);
+  useState(() => {
+
+    const usuarioGuardado =
+      localStorage.getItem("usuario");
+
+    return usuarioGuardado
+      ? JSON.parse(usuarioGuardado)
+      : null;
+
+  });
 
   // ===== CARRITO =====
 
@@ -91,6 +100,8 @@ function App() {
   // ===== LOGOUT =====
 
   const logout = () => {
+
+    localStorage.removeItem("usuario");
 
     setUsuario(null);
 
