@@ -90,12 +90,9 @@ function Navbar({
     // LOGIN EXITOSO
 
     setUsuario({
-
       email,
-
-      nombre:
-        email.split("@")[0],
-
+      nombre: email.split("@")[0],
+      rol: email === "admin@zipx.com" ? "admin" : "usuario",
     });
 
     setErrorLogin("");
@@ -208,6 +205,20 @@ function Navbar({
             </Link>
 
           </li>
+
+          {usuario?.rol === "admin" && (
+            <li
+              className={
+                location.pathname === "/admin"
+                  ? "active"
+                  : ""
+              }
+            >
+              <Link to="/admin">
+                ⚙️ Admin
+              </Link>
+            </li>
+          )}
 
           {usuario && (
 

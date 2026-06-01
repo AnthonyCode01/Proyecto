@@ -18,6 +18,7 @@ import Category from "./componentes/Category.jsx";
 import ProductDetail from "./componentes/ProductDetail.jsx";
 import Users from "./componentes/Users.jsx";
 import Carrito from "./componentes/Carrito.jsx";
+import Admin from "./componentes/Admin.jsx";
 import cursosData from "./data/cursos.js";
 
 function App() {
@@ -522,6 +523,16 @@ function App() {
                 carrito={carrito}
                 setCarrito={setCarrito}
                 usuario={usuario}
+              />
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <Admin
+                usuario={usuario}
+                carrito={carrito}
               />
             }
           />
