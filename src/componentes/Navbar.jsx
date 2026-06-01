@@ -35,6 +35,24 @@ function Navbar({
 
   const [errorLogin, setErrorLogin] =
     useState("");
+ /* ====REGISTRO==== */
+  const [mostrarRegistro, setMostrarRegistro] =
+  useState(false);
+
+  const [nombreRegistro, setNombreRegistro] =
+  useState("");
+
+  const [apellidoRegistro, setApellidoRegistro] =
+  useState("");
+
+  const [emailRegistro, setEmailRegistro] =
+  useState("");
+
+  const [passwordRegistro, setPasswordRegistro] =
+  useState("");
+
+  const [errorRegistro, setErrorRegistro] =
+  useState("");  
 
   // ===== CARRITO =====
 
@@ -112,6 +130,85 @@ function Navbar({
   setPassword("");
 
 };
+
+const handleRegistro = () => {
+
+  if (
+    !nombreRegistro ||
+    !apellidoRegistro ||
+    !emailRegistro ||
+    !passwordRegistro
+  ) {
+
+    setErrorRegistro(
+      "Completa todos los campos"
+    );
+
+    return;
+
+  }
+
+  const usuariosGuardados =
+    JSON.parse(
+      localStorage.getItem(
+        "usuarios"
+      )
+    ) || [];
+
+  const existeUsuario =
+    usuariosGuardados.find(
+      (user) =>
+        user.email ===
+        emailRegistro
+    );
+
+  if (existeUsuario) {
+
+    setErrorRegistro(
+      "Ese correo ya está registrado"
+    );
+
+    return;
+
+  }
+
+  const nuevoUsuario = {
+
+    nombre:
+      nombreRegistro,
+
+    apellido:
+      apellidoRegistro,
+
+    email:
+      emailRegistro,
+
+    password:
+      passwordRegistro,
+
+  };
+
+  usuariosGuardados.push(
+    nuevoUsuario
+  );
+
+  localStorage.setItem(
+    "usuarios",
+    JSON.stringify(
+      usuariosGuardados
+    )
+  );
+
+  setErrorRegistro("");
+
+  alert(
+    "Cuenta creada correctamente"
+  );
+
+  setMostrarRegistro(false);
+
+};
+
 const handleGoogleLogin = (
   credentialResponse
 ) => {
@@ -502,19 +599,129 @@ const handleGoogleLogin = (
 
             <p className="register-text">
 
-              ¿No tienes cuenta?{" "}
+                ¿No tienes cuenta?{" "}
 
-              <span>
-                Regístrate
-              </span>
+           <span
+              onClick={() => {
 
-            </p>
+                setMostrarLogin(false);
+
+                setMostrarRegistro(true);
+
+              }}
+                style={{
+               cursor: "pointer",
+               fontWeight: "bold",
+              }}
+            >
+
+             Regístrate
+
+            </span>
+
+             </p>
 
           </form>
 
         </div>
 
       )}
+
+      {/* ===== REGISTRO ===== */}
+
+{mostrarRegistro && (
+
+  <div className="login-overlay">
+
+    <div className="modern-login">
+
+      <button
+        type="button"
+        className="close-login"
+        onClick={() =>
+          setMostrarRegistro(false)
+        }
+      >
+        ✕
+      </button>
+
+      <div className="login-icon">
+        📝
+      </div>
+
+      <h1>
+        Crear cuenta
+      </h1>
+
+      <p className="login-subtitle">
+        Regístrate para continuar
+      </p>
+
+      <input
+        type="text"
+        placeholder="Nombre"
+        value={nombreRegistro}
+        onChange={(e) =>
+          setNombreRegistro(
+            e.target.value
+          )
+        }
+      />
+
+      <input
+        type="text"
+        placeholder="Apellido"
+        value={apellidoRegistro}
+        onChange={(e) =>
+          setApellidoRegistro(
+            e.target.value
+          )
+        }
+      />
+
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        value={emailRegistro}
+        onChange={(e) =>
+          setEmailRegistro(
+            e.target.value
+          )
+        }
+      />
+
+      <input
+        type="password"
+        placeholder="Contraseña"
+        value={passwordRegistro}
+        onChange={(e) =>
+          setPasswordRegistro(
+            e.target.value
+          )
+        }
+      />
+
+      {errorRegistro && (
+
+        <p className="login-error">
+          {errorRegistro}
+        </p>
+
+      )}
+
+      <button
+  className="login-submit"
+  type="button"
+  onClick={handleRegistro}
+>
+  Crear cuenta
+</button>
+
+    </div>
+
+  </div>
+
+)}
 
       {/* ===== CARRITO ===== */}
 
