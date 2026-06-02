@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { useAdmin } from "../Context/AdminContext.jsx";
 
 import {
   Link,
@@ -21,6 +22,8 @@ function Navbar({
 
   const navigate =
     useNavigate();
+
+  const { loginAdmin } = useAdmin();
 
   // ===== LOGIN =====
 
@@ -94,6 +97,20 @@ function Navbar({
       "Completa todos los campos"
     );
 
+    return;
+
+  }
+
+  // ===== DETECCIÓN ADMIN =====
+  // El campo "email" se usa como usuario para el admin
+  const esAdmin = loginAdmin(email.trim(), password);
+
+  if (esAdmin) {
+
+    setMostrarLogin(false);
+    setEmail("");
+    setPassword("");
+    navigate("/admin/dashboard");
     return;
 
   }
