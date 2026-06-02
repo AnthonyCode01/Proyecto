@@ -14,6 +14,8 @@ function Navbar({
   usuario,
   setUsuario,
   logout,
+  eliminarDelCarrito,
+  vaciarCarrito,
 }) {
 
   const location =
@@ -853,49 +855,55 @@ const handleGoogleLogin = (
       {/* ===== CARRITO ===== */}
 
       {mostrarCarrito && (
-
         <div className="cart-panel">
 
-          <h2>
-            Carrito de compras
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h2 style={{ margin: 0 }}>🛒 Carrito</h2>
+            <button onClick={() => setMostrarCarrito(false)} style={{ background: "none", border: "none", fontSize: "1.2rem", cursor: "pointer", color: "inherit" }}>✕</button>
+          </div>
 
           {carrito.length === 0 ? (
 
-            <p>
-              No hay cursos agregados.
-            </p>
+            <div style={{ textAlign: "center", padding: "2rem 0", color: "#888" }}>
+              <p style={{ fontSize: "2rem" }}>🛒</p>
+              <p>Tu carrito está vacío.</p>
+              <button onClick={() => { setMostrarCarrito(false); navigate("/cursos"); }} className="carrito-explorar-btn" style={{ marginTop: "0.5rem" }}>
+                Ver cursos
+              </button>
+            </div>
 
           ) : (
+            <>
+              <div style={{ maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {carrito.map((curso, index) => (
+                  <div className="cart-item" key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ margin: 0, fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{curso.titulo}</h3>
+                      <p style={{ margin: 0, fontSize: "0.85rem", color: "#16a34a", fontWeight: "600" }}>S/ {curso.precio?.toFixed(2)}</p>
+                    </div>
+                    <button onClick={() => eliminarDelCarrito && eliminarDelCarrito(index)} title="Eliminar" style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: "1rem", flexShrink: 0 }}>✕</button>
+                  </div>
+                ))}
+              </div>
 
-            carrito.map(
-              (curso, index) => (
-
-                <div
-                  className="cart-item"
-                  key={index}
-                >
-
-                  <h3>
-                    {curso.titulo}
-                  </h3>
-
-                  <p>
-                    S/ {curso.precio}
-                  </p>
-
+              <div style={{ borderTop: "1px solid #e5e7eb", marginTop: "1rem", paddingTop: "1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem", fontWeight: "700" }}>
+                  <span>Total</span>
+                  <span>S/ {carrito.reduce((acc, c) => acc + (c.precio || 0), 0).toFixed(2)}</span>
                 </div>
-
-              )
-            )
-
+                <button className="carrito-pagar-btn" style={{ width: "100%", marginBottom: "0.5rem" }} onClick={() => { setMostrarCarrito(false); navigate("/carrito"); }}>
+                  Ver carrito completo
+                </button>
+                <button onClick={() => vaciarCarrito && vaciarCarrito()} style={{ width: "100%", background: "none", border: "1px solid #ef4444", color: "#ef4444", padding: "0.5rem", borderRadius: "8px", cursor: "pointer", fontSize: "0.85rem" }}>
+                  🗑 Vaciar carrito
+                </button>
+              </div>
+            </>
           )}
 
         </div>
-
       )}
-
-    </>
+      </>
 
   );
 }

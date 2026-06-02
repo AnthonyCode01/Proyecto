@@ -5,6 +5,7 @@ import {
 function ProductDetail({
   curso,
   agregarCarrito,
+  carrito = [],
 }) {
 
   const navigate =
@@ -304,15 +305,13 @@ function ProductDetail({
 
           <button
             className="course-btn"
-            onClick={() =>
-              agregarCarrito(
-                curso
-              )
-            }
+            onClick={() => agregarCarrito(curso)}
+            disabled={carrito.some((item) => (curso.id && item.id === curso.id) || item.titulo === curso.titulo)}
+            style={carrito.some((item) => (curso.id && item.id === curso.id) || item.titulo === curso.titulo) ? { opacity: 0.6, cursor: "default" } : {}}
           >
-
-            Agregar al carrito
-
+            {carrito.some((item) => (curso.id && item.id === curso.id) || item.titulo === curso.titulo)
+              ? "✓ Ya está en el carrito"
+              : "🛒 Agregar al carrito"}
           </button>
 
           <button
