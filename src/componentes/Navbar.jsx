@@ -125,6 +125,38 @@ const registroTieneSimbolo =
 
   }
 
+  if (
+    email === "admin@zipx.com" &&
+    password === "Admin123@!"
+  )   
+  {
+    console.log("Entró al admin");
+
+    const adminUser = {
+      nombre: "Administrador",
+      email: "admin@zipx.com",
+      rol: "admin",
+    };
+
+    setUsuario(adminUser);
+
+    localStorage.setItem(
+      "usuario",
+      JSON.stringify(adminUser)
+    );
+
+    setErrorLogin("");
+
+    setMostrarLogin(false);
+
+    setEmail("");
+
+    setPassword("");
+
+    return;
+
+  }
+
   const usuariosGuardados =
     JSON.parse(
       localStorage.getItem(
@@ -397,6 +429,24 @@ const handleGoogleLogin = (
             </Link>
 
           </li>
+          {usuario?.rol === "admin" && (
+
+          <li
+            className={
+            location.pathname ===
+            "/admin"
+              ? "active"
+              : ""
+             }
+          >
+
+          <Link to="/admin">
+           Admin
+          </Link>
+
+          </li>
+
+         )}
 
           {usuario && (
 

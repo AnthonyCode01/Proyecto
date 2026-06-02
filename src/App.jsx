@@ -18,6 +18,7 @@ import Category from "./componentes/Category.jsx";
 import ProductDetail from "./componentes/ProductDetail.jsx";
 import Users from "./componentes/Users.jsx";
 import cursosData from "./data/cursos.js";
+import Admin from "./componentes/Admin";
 
 function App() {
 
@@ -73,6 +74,20 @@ function App() {
 
   const [favoritos, setFavoritos] =
     useState([]);
+  // ===== CURSOS ADMIN =====
+  const [cursosAdmin, setCursosAdmin] =
+    useState(() => {
+
+  const cursosGuardados =
+      localStorage.getItem(
+        "cursosAdmin"
+      );
+
+  return cursosGuardados
+      ? JSON.parse(cursosGuardados)
+      : [];
+
+  });
 
   // ===== FAVORITOS =====
 
@@ -134,10 +149,15 @@ function App() {
 
   };
 
+  const todosLosCursos = [
+  ...cursosData,
+  ...cursosAdmin,
+];
+
   // ===== FILTROS =====
 
   const cursosFiltrados =
-    cursosData.filter((curso) => {
+  todosLosCursos.filter((curso) => {
 
       const coincideBusqueda =
         curso.titulo
@@ -479,6 +499,19 @@ function App() {
                 favoritos={favoritos}
               />
             }
+          />
+
+          {/* ===== ADMIN ===== */}
+
+          <Route
+            path="/admin"
+            element={
+          <Admin
+            setCursosAdmin={
+            setCursosAdmin
+          }
+          />
+          }
           />
 
           {/* ===== CONTACTO ===== */}

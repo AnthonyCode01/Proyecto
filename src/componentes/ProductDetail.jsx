@@ -62,8 +62,11 @@ function ProductDetail({
 
         <p className="product-description">
 
-          Desarrolla habilidades
-          prácticas con el curso de{" "}
+          <p>
+            {curso.descripcion
+            ? curso.descripcion
+            : `Desarrolla habilidades prácticas con el curso de ${curso.titulo}. Aprende mediante clases grabadas en alta calidad, ejercicios guiados, proyectos reales y recursos descargables diseñados para potenciar tu aprendizaje profesional.`}
+          </p>
 
           <strong>
             {curso.titulo}
