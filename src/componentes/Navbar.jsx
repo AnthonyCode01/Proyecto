@@ -55,8 +55,21 @@ function Navbar({
   const [passwordRegistro, setPasswordRegistro] =
   useState("");
 
+  const [
+  mostrarPasswordRegistro,setMostrarPasswordRegistro
+] = useState(false);
+
+ const [
+  mostrarConfirmarPassword,setMostrarConfirmarPassword
+] = useState(false);
+
   const [errorRegistro, setErrorRegistro] =
   useState("");  
+
+  // ===== CARRITO =====
+
+  const [mostrarCarrito, setMostrarCarrito] =
+    useState(false);
 
   // ===== BUSCADOR =====
 
@@ -81,6 +94,20 @@ function Navbar({
 
   const tieneSimbolo =
     /[!@#$%^&*]/.test(password);
+
+// ===== VALIDACIONES PASSWORD REGISTRO =====
+
+const registroTiene8 =
+  passwordRegistro.length >= 8;
+
+const registroTieneMayus =
+  /[A-Z]/.test(passwordRegistro);
+
+const registroTieneNumero =
+  /\d/.test(passwordRegistro);
+
+const registroTieneSimbolo =
+  /[!@#$%^&*]/.test(passwordRegistro);
 
   // ===== LOGIN =====
 
@@ -133,13 +160,6 @@ localStorage.setItem(
   )
 );
 
-  localStorage.setItem(
-    "usuario",
-    JSON.stringify(
-      usuarioEncontrado
-    )
-  );
-
   setErrorLogin("");
 
   setMostrarLogin(false);
@@ -166,6 +186,22 @@ const handleRegistro = () => {
     return;
 
   }
+  if (
+    !registroTiene8 ||
+    !registroTieneMayus ||
+    !registroTieneNumero ||
+    !registroTieneSimbolo
+  ) {
+
+    setErrorRegistro(
+      "La contraseña no cumple los requisitos"
+    );
+
+    return;
+
+}
+
+  
 
   const usuariosGuardados =
     JSON.parse(
@@ -439,12 +475,17 @@ const handleGoogleLogin = (
 
           )}
 
-          {/* ===== CARRITO — navega a /carrito ===== */}
+          {/* ===== CARRITO ===== */}
 
           <div
             className="cart"
             onClick={() =>
-              navigate("/carrito")
+
+              usuario &&
+              setMostrarCarrito(
+                !mostrarCarrito
+              )
+
             }
           >
 
@@ -709,17 +750,84 @@ const handleGoogleLogin = (
         }
       />
 
-      <input
-        type="password"
-        placeholder="Contraseña"
-        value={passwordRegistro}
-        onChange={(e) =>
-          setPasswordRegistro(
-            e.target.value
-          )
-        }
-      />
+      <div
+  style={{
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+  }}
+>
 
+  <input
+    type={
+      mostrarPasswordRegistro
+        ? "text"
+        : "password"
+    }
+    placeholder="Contraseña"
+    value={passwordRegistro}
+    onChange={(e) =>
+      setPasswordRegistro(
+        e.target.value
+      )
+    }
+    style={{
+      flex: 1,
+    }}
+  />
+
+  <button
+    type="button"
+    onClick={() =>
+      setMostrarPasswordRegistro(
+        !mostrarPasswordRegistro
+      )
+    }
+  >
+
+    {mostrarPasswordRegistro
+      ? "Mostrar"
+      : "Ocultar"}
+
+  </button>
+
+  {passwordRegistro.length > 0 && (
+
+  <div className="password-rules">
+
+    <p>
+      {registroTiene8
+        ? "✅"
+        : "⚪"}{" "}
+      Mínimo 8 caracteres
+    </p>
+
+    <p>
+      {registroTieneMayus
+        ? "✅"
+        : "⚪"}{" "}
+      1 mayúscula
+    </p>
+
+    <p>
+      {registroTieneNumero
+        ? "✅"
+        : "⚪"}{" "}
+      1 número
+    </p>
+
+    <p>
+      {registroTieneSimbolo
+        ? "✅"
+        : "⚪"}{" "}
+      1 símbolo
+    </p>
+
+  </div>
+
+)}
+
+</div>
       {errorRegistro && (
 
         <p className="login-error">
@@ -741,6 +849,51 @@ const handleGoogleLogin = (
   </div>
 
 )}
+
+      {/* ===== CARRITO ===== */}
+
+      {mostrarCarrito && (
+
+        <div className="cart-panel">
+
+          <h2>
+            Carrito de compras
+          </h2>
+
+          {carrito.length === 0 ? (
+
+            <p>
+              No hay cursos agregados.
+            </p>
+
+          ) : (
+
+            carrito.map(
+              (curso, index) => (
+
+                <div
+                  className="cart-item"
+                  key={index}
+                >
+
+                  <h3>
+                    {curso.titulo}
+                  </h3>
+
+                  <p>
+                    S/ {curso.precio}
+                  </p>
+
+                </div>
+
+              )
+            )
+
+          )}
+
+        </div>
+
+      )}
 
     </>
 
