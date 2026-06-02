@@ -17,6 +17,7 @@ import Footer from "./componentes/Footer.jsx";
 import Category from "./componentes/Category.jsx";
 import ProductDetail from "./componentes/ProductDetail.jsx";
 import Users from "./componentes/Users.jsx";
+import Carrito from "./componentes/Carrito.jsx";       // ← NUEVO
 import cursosData from "./data/cursos.js";
 
 function App() {
@@ -57,10 +58,38 @@ function App() {
 
   });
 
-  // ===== CARRITO =====
+  // ===== CARRITO — persiste en localStorage =====
 
   const [carrito, setCarrito] =
-    useState([]);
+    useState(() => {
+
+      try {
+
+        const carritoGuardado =
+          localStorage.getItem("carrito");
+
+        return carritoGuardado
+          ? JSON.parse(carritoGuardado)
+          : [];
+
+      } catch {
+
+        return [];
+
+      }
+
+    });
+
+  // Sincronizar carrito → localStorage cada vez que cambie
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "carrito",
+      JSON.stringify(carrito)
+    );
+
+  }, [carrito]);
 
   // ===== CURSO =====
 
@@ -74,7 +103,7 @@ function App() {
   const [favoritos, setFavoritos] =
     useState([]);
 
-  // ===== FAVORITOS =====
+  // ===== TOGGLE FAVORITO =====
 
   const toggleFavorito = (id) => {
 
@@ -102,6 +131,7 @@ function App() {
   const logout = () => {
 
     localStorage.removeItem("usuario");
+    localStorage.removeItem("carrito");
 
     setUsuario(null);
 
@@ -109,11 +139,11 @@ function App() {
 
   };
 
-  // ===== CARRITO =====
+  // ===== AGREGAR AL CARRITO =====
 
   const agregarCarrito = (curso) => {
 
-    // ===== SI NO HAY LOGIN =====
+    // Si no hay login abrimos el modal
 
     if (!usuario) {
 
@@ -125,7 +155,19 @@ function App() {
 
     }
 
-    // ===== AGREGA =====
+    // Evitar duplicados
+
+    const yaEsta = carrito.some(
+      (c) => c.id === curso.id
+    );
+
+    if (yaEsta) {
+
+      alert("Este curso ya está en tu carrito.");
+
+      return;
+
+    }
 
     setCarrito([
       ...carrito,
@@ -325,6 +367,19 @@ function App() {
             }
           />
 
+          {/* ===== CARRITO ===== */}
+
+          <Route
+            path="/carrito"
+            element={
+              <Carrito
+                carrito={carrito}
+                setCarrito={setCarrito}
+                usuario={usuario}
+              />
+            }
+          />
+
           {/* ===== OFERTAS ===== */}
 
           <Route
@@ -383,6 +438,7 @@ function App() {
                       className="offer-btn"
                       onClick={() =>
                         agregarCarrito({
+                          id: "pack-excel",
                           titulo:
                             "Pack Excel Profesional",
 
@@ -390,6 +446,9 @@ function App() {
 
                           categoria:
                             "Ofimática",
+
+                          imagen:
+                            "https://cdn-icons-png.flaticon.com/512/732/732220.png",
                         })
                       }
                     >
@@ -433,6 +492,7 @@ function App() {
                       className="offer-btn"
                       onClick={() =>
                         agregarCarrito({
+                          id: "pack-diseno",
                           titulo:
                             "Pack Diseño Creativo",
 
@@ -440,6 +500,9 @@ function App() {
 
                           categoria:
                             "Diseño",
+
+                          imagen:
+                            "https://cdn-icons-png.flaticon.com/512/5968/5968705.png",
                         })
                       }
                     >
