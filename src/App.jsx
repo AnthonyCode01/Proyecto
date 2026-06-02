@@ -17,6 +17,7 @@ import Footer from "./componentes/Footer.jsx";
 import Category from "./componentes/Category.jsx";
 import ProductDetail from "./componentes/ProductDetail.jsx";
 import Users from "./componentes/Users.jsx";
+import Carrito from "./componentes/Carrito.jsx";
 import cursosData from "./data/cursos.js";
 
 function App() {
@@ -46,7 +47,13 @@ function App() {
   // ===== USUARIO =====
 
   const [usuario, setUsuario] =
-    useState(null);
+    useState(() => {
+      const guardado =
+        localStorage.getItem("usuario");
+      return guardado
+        ? JSON.parse(guardado)
+        : null;
+    });
 
   // ===== CARRITO =====
 
@@ -64,8 +71,6 @@ function App() {
 
   const [favoritos, setFavoritos] =
     useState([]);
-
-  // ===== FAVORITOS =====
 
   const toggleFavorito = (id) => {
 
@@ -92,17 +97,17 @@ function App() {
 
   const logout = () => {
 
+    localStorage.removeItem("usuario");
+
     setUsuario(null);
 
     setCarrito([]);
 
   };
 
-  // ===== CARRITO =====
+  // ===== AGREGAR CARRITO =====
 
   const agregarCarrito = (curso) => {
-
-    // ===== SI NO HAY LOGIN =====
 
     if (!usuario) {
 
@@ -113,8 +118,6 @@ function App() {
       return;
 
     }
-
-    // ===== AGREGA =====
 
     setCarrito([
       ...carrito,
@@ -337,8 +340,6 @@ function App() {
 
                 <div className="offers-grid">
 
-                  {/* OFERTA 1 */}
-
                   <div className="offer-card">
 
                     <span className="badge">
@@ -374,9 +375,7 @@ function App() {
                         agregarCarrito({
                           titulo:
                             "Pack Excel Profesional",
-
                           precio: 89,
-
                           categoria:
                             "Ofimática",
                         })
@@ -386,8 +385,6 @@ function App() {
                     </button>
 
                   </div>
-
-                  {/* OFERTA 2 */}
 
                   <div className="offer-card">
 
@@ -424,9 +421,7 @@ function App() {
                         agregarCarrito({
                           titulo:
                             "Pack Diseño Creativo",
-
                           precio: 109,
-
                           categoria:
                             "Diseño",
                         })
@@ -466,6 +461,21 @@ function App() {
                   setCarrito
                 }
                 favoritos={favoritos}
+              />
+            }
+          />
+
+          {/* ===== CARRITO ===== */}
+
+          <Route
+            path="/carrito"
+            element={
+              <Carrito
+                carrito={carrito}
+                setCarrito={
+                  setCarrito
+                }
+                usuario={usuario}
               />
             }
           />

@@ -19,14 +19,15 @@ function Users({
 
   const navigate = useNavigate();
 
-  // ===== TABS =====
-
   const [tabActiva, setTabActiva] =
     useState("perfil");
 
   // ===== PERFIL =====
 
   const [nombre, setNombre] =
+    useState("");
+
+  const [apellido, setApellido] =
     useState("");
 
   const [email, setEmail] =
@@ -60,6 +61,7 @@ function Users({
   useEffect(() => {
     if (usuario) {
       setNombre(usuario.nombre || "");
+      setApellido(usuario.apellido || "");
       setEmail(usuario.email || "");
       setTelefono(usuario.telefono || "");
     }
@@ -82,28 +84,46 @@ function Users({
     );
   }
 
-  // ===== CURSOS COMPRADOS =====
+  // ===== DATOS =====
 
   const cursosComprados = carrito.filter(
     (item, index, self) =>
-      index === self.findIndex((c) => c.titulo === item.titulo)
+      index === self.findIndex(
+        (c) => c.titulo === item.titulo
+      )
   );
 
   const totalGastado = carrito.reduce(
-    (acc, cur) => acc + cur.precio,
-    0
+    (acc, cur) => acc + cur.precio, 0
   );
-
-  // ===== FAVORITOS DATA =====
 
   const cursosFavoritos = cursosData.filter(
     (c) => favoritos.includes(c.id)
   );
 
+  const iniciales = (nombre + " " + apellido)
+    .trim()
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "??";
+
   // ===== GUARDAR PERFIL =====
 
   const guardarCambios = () => {
-    setUsuario({ ...usuario, nombre, email, telefono });
+    const actualizado = {
+      ...usuario,
+      nombre,
+      apellido,
+      email,
+      telefono,
+    };
+    setUsuario(actualizado);
+    localStorage.setItem(
+      "usuario",
+      JSON.stringify(actualizado)
+    );
     setEditando(false);
     setGuardado(true);
     setTimeout(() => setGuardado(false), 3000);
@@ -116,14 +136,34 @@ function Users({
       setMsgSeguridad("error:Completa todos los campos");
       return;
     }
+    if (passActual !== usuario.password) {
+      setMsgSeguridad("error:La contraseña actual es incorrecta");
+      return;
+    }
     if (passNueva !== passConfirm) {
       setMsgSeguridad("error:Las contraseñas no coinciden");
       return;
     }
     if (passNueva.length < 8) {
-      setMsgSeguridad("error:La contraseña debe tener al menos 8 caracteres");
+      setMsgSeguridad("error:Mínimo 8 caracteres");
       return;
     }
+    const actualizado = { ...usuario, password: passNueva };
+    setUsuario(actualizado);
+    localStorage.setItem("usuario", JSON.stringify(actualizado));
+
+    // Actualiza también en la lista de usuarios
+    const usuarios = JSON.parse(
+      localStorage.getItem("usuarios") || "[]"
+    );
+    const idx = usuarios.findIndex(
+      (u) => u.email === usuario.email
+    );
+    if (idx !== -1) {
+      usuarios[idx].password = passNueva;
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    }
+
     setPassActual("");
     setPassNueva("");
     setPassConfirm("");
@@ -131,25 +171,22 @@ function Users({
     setTimeout(() => setMsgSeguridad(""), 3000);
   };
 
+  // ===== QUITAR DEL CARRITO =====
+
+  const quitarDelCarrito = (titulo) => {
+    setCarrito(
+      carrito.filter((c) => c.titulo !== titulo)
+    );
+  };
+
   // ===== LOGOUT =====
 
   const cerrarSesion = () => {
+    localStorage.removeItem("usuario");
     setUsuario(null);
     setCarrito([]);
     navigate("/");
   };
-
-  // ===== QUITAR DEL CARRITO =====
-
-  const quitarDelCarrito = (titulo) => {
-    setCarrito(carrito.filter((c) => c.titulo !== titulo));
-  };
-
-  // ===== AVATAR =====
-
-  const iniciales = nombre
-    ? nombre.slice(0, 2).toUpperCase()
-    : "??";
 
   const fechaRegistro = new Date().toLocaleDateString(
     "es-PE",
@@ -159,18 +196,24 @@ function Users({
   return (
     <div className="account-page">
 
-      {/* ===== SIDEBAR IZQUIERDO ===== */}
+      {/* ===== SIDEBAR ===== */}
 
       <aside className="account-sidebar">
 
-        {/* AVATAR */}
-
         <div className="account-avatar-big">
-          <div className="avatar-circle-big">
-            {iniciales}
-          </div>
+          {usuario.foto ? (
+            <img
+              src={usuario.foto}
+              alt="avatar"
+              className="avatar-img"
+            />
+          ) : (
+            <div className="avatar-circle-big">
+              {iniciales}
+            </div>
+          )}
           <h2 className="account-sidebar-name">
-            {nombre}
+            {nombre} {apellido}
           </h2>
           <p className="account-sidebar-email">
             {email}
@@ -179,8 +222,6 @@ function Users({
             ✅ Cuenta activa
           </span>
         </div>
-
-        {/* STATS RÁPIDAS */}
 
         <div className="account-quick-stats">
           <div className="qs-item">
@@ -205,8 +246,6 @@ function Users({
           </div>
         </div>
 
-        {/* MENÚ */}
-
         <nav className="account-nav">
           {[
             { id: "perfil",    icon: "👤", label: "Mi perfil" },
@@ -229,8 +268,6 @@ function Users({
           ))}
         </nav>
 
-        {/* LOGOUT */}
-
         <button
           className="account-logout-btn"
           onClick={cerrarSesion}
@@ -240,14 +277,13 @@ function Users({
 
       </aside>
 
-      {/* ===== CONTENIDO PRINCIPAL ===== */}
+      {/* ===== CONTENIDO ===== */}
 
       <main className="account-main">
 
-        {/* ===== TAB: PERFIL ===== */}
+        {/* ===== PERFIL ===== */}
 
         {tabActiva === "perfil" && (
-
           <div className="account-section">
 
             <div className="account-section-header">
@@ -264,13 +300,24 @@ function Users({
             <div className="account-form-grid">
 
               <div className="account-field">
-                <label>Nombre completo</label>
+                <label>Nombre</label>
                 <input
                   type="text"
                   value={nombre}
                   disabled={!editando}
                   onChange={(e) => setNombre(e.target.value)}
                   placeholder="Tu nombre"
+                />
+              </div>
+
+              <div className="account-field">
+                <label>Apellido</label>
+                <input
+                  type="text"
+                  value={apellido}
+                  disabled={!editando}
+                  onChange={(e) => setApellido(e.target.value)}
+                  placeholder="Tu apellido"
                 />
               </div>
 
@@ -334,13 +381,11 @@ function Users({
             </div>
 
           </div>
-
         )}
 
-        {/* ===== TAB: MIS CURSOS ===== */}
+        {/* ===== MIS CURSOS ===== */}
 
         {tabActiva === "cursos" && (
-
           <div className="account-section">
 
             <div className="account-section-header">
@@ -353,7 +398,7 @@ function Users({
               <div className="account-empty">
                 <span>📭</span>
                 <h3>Aún no tienes cursos</h3>
-                <p>Explora nuestro catálogo y comienza a aprender</p>
+                <p>Explora el catálogo y empieza a aprender</p>
                 <button
                   className="account-btn primary"
                   onClick={() => navigate("/cursos")}
@@ -367,20 +412,14 @@ function Users({
               <div className="account-courses-list">
 
                 {cursosComprados.map((curso, i) => (
-
                   <div className="account-course-item" key={i}>
-
-                    <div className="aci-icon">
-                      📖
-                    </div>
-
+                    <div className="aci-icon">📖</div>
                     <div className="aci-info">
                       <h3>{curso.titulo}</h3>
                       <span className="aci-cat">
                         {curso.categoria}
                       </span>
                     </div>
-
                     <div className="aci-right">
                       <span className="aci-price">
                         S/ {curso.precio}
@@ -389,9 +428,7 @@ function Users({
                         ✅ Activo
                       </span>
                     </div>
-
                   </div>
-
                 ))}
 
                 <div className="account-total-box">
@@ -404,13 +441,11 @@ function Users({
             )}
 
           </div>
-
         )}
 
-        {/* ===== TAB: FAVORITOS ===== */}
+        {/* ===== FAVORITOS ===== */}
 
         {tabActiva === "favoritos" && (
-
           <div className="account-section">
 
             <div className="account-section-header">
@@ -435,16 +470,9 @@ function Users({
             ) : (
 
               <div className="account-fav-grid">
-
                 {cursosFavoritos.map((curso) => (
-
                   <div className="account-fav-card" key={curso.id}>
-
-                    <img
-                      src={curso.imagen}
-                      alt={curso.titulo}
-                    />
-
+                    <img src={curso.imagen} alt={curso.titulo} />
                     <div className="afc-info">
                       <h3>{curso.titulo}</h3>
                       <p>{curso.categoria} · {curso.nivel}</p>
@@ -453,23 +481,18 @@ function Users({
                         <strong>S/ {curso.precio}</strong>
                       </div>
                     </div>
-
                   </div>
-
                 ))}
-
               </div>
 
             )}
 
           </div>
-
         )}
 
-        {/* ===== TAB: CARRITO ===== */}
+        {/* ===== CARRITO ===== */}
 
         {tabActiva === "carrito" && (
-
           <div className="account-section">
 
             <div className="account-section-header">
@@ -496,14 +519,11 @@ function Users({
               <div className="account-cart-list">
 
                 {carrito.map((curso, i) => (
-
                   <div className="account-cart-item" key={i}>
-
                     <div className="acart-info">
                       <h3>{curso.titulo}</h3>
                       <span>{curso.categoria}</span>
                     </div>
-
                     <div className="acart-right">
                       <strong>S/ {curso.precio}</strong>
                       <button
@@ -514,9 +534,7 @@ function Users({
                         🗑️
                       </button>
                     </div>
-
                   </div>
-
                 ))}
 
                 <div className="account-total-box">
@@ -533,13 +551,11 @@ function Users({
             )}
 
           </div>
-
         )}
 
-        {/* ===== TAB: SEGURIDAD ===== */}
+        {/* ===== SEGURIDAD ===== */}
 
         {tabActiva === "seguridad" && (
-
           <div className="account-section">
 
             <div className="account-section-header">
@@ -548,21 +564,13 @@ function Users({
             </div>
 
             {msgSeguridad && (
-
-              <div
-                className={
-                  "account-alert " +
-                  (msgSeguridad.startsWith("ok")
-                    ? "success"
-                    : "error")
-                }
-              >
-                {msgSeguridad.startsWith("ok")
-                  ? "✅ "
-                  : "⚠️ "}
+              <div className={
+                "account-alert " +
+                (msgSeguridad.startsWith("ok") ? "success" : "error")
+              }>
+                {msgSeguridad.startsWith("ok") ? "✅ " : "⚠️ "}
                 {msgSeguridad.split(":")[1]}
               </div>
-
             )}
 
             <div className="account-security-box">
@@ -609,24 +617,17 @@ function Users({
             </div>
 
             <div className="account-danger-zone">
-
               <h3>⚠️ Zona de peligro</h3>
-
-              <p>
-                Al cerrar sesión perderás el acceso hasta volver a iniciar.
-              </p>
-
+              <p>Al cerrar sesión perderás el acceso hasta volver a iniciar.</p>
               <button
                 className="account-btn danger"
                 onClick={cerrarSesion}
               >
                 🚪 Cerrar sesión
               </button>
-
             </div>
 
           </div>
-
         )}
 
       </main>

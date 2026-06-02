@@ -14,11 +14,8 @@ function Navbar({
   logout,
 }) {
 
-  const location =
-    useLocation();
-
-  const navigate =
-    useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // ===== LOGIN =====
 
@@ -31,37 +28,45 @@ function Navbar({
   const [password, setPassword] =
     useState("");
 
+  const [mostrarPassword, setMostrarPassword] =
+    useState(false);
+
   const [errorLogin, setErrorLogin] =
     useState("");
 
-  // ===== CARRITO =====
+  // ===== REGISTRO =====
 
-  const [mostrarCarrito, setMostrarCarrito] =
+  const [mostrarRegistro, setMostrarRegistro] =
     useState(false);
+
+  const [nombreRegistro, setNombreRegistro] =
+    useState("");
+
+  const [apellidoRegistro, setApellidoRegistro] =
+    useState("");
+
+  const [emailRegistro, setEmailRegistro] =
+    useState("");
+
+  const [passwordRegistro, setPasswordRegistro] =
+    useState("");
+
+  const [errorRegistro, setErrorRegistro] =
+    useState("");
 
   // ===== BUSCADOR =====
 
   const buscarCurso = (e) => {
-
     setBusqueda(e.target.value);
-
     navigate("/cursos");
-
   };
 
   // ===== VALIDACIONES PASSWORD =====
 
-  const tiene8 =
-    password.length >= 8;
-
-  const tieneMayus =
-    /[A-Z]/.test(password);
-
-  const tieneNumero =
-    /\d/.test(password);
-
-  const tieneSimbolo =
-    /[!@#$%^&*]/.test(password);
+  const tiene8 = password.length >= 8;
+  const tieneMayus = /[A-Z]/.test(password);
+  const tieneNumero = /\d/.test(password);
+  const tieneSimbolo = /[!@#$%^&*]/.test(password);
 
   // ===== LOGIN =====
 
@@ -70,46 +75,87 @@ function Navbar({
     e.preventDefault();
 
     if (!email || !password) {
-
-      setErrorLogin(
-        "Completa todos los campos"
-      );
-
+      setErrorLogin("Completa todos los campos");
       return;
     }
 
-    if (
-      !tiene8 ||
-      !tieneMayus ||
-      !tieneNumero ||
-      !tieneSimbolo
-    ) {
+    const usuariosGuardados =
+      JSON.parse(
+        localStorage.getItem("usuarios")
+      ) || [];
 
-      setErrorLogin(
-        "La contraseña no cumple los requisitos"
+    const usuarioEncontrado =
+      usuariosGuardados.find(
+        (user) =>
+          user.email === email &&
+          user.password === password
       );
 
+    if (!usuarioEncontrado) {
+      setErrorLogin("Correo o contraseña incorrectos");
       return;
     }
 
-    // LOGIN EXITOSO
+    setUsuario(usuarioEncontrado);
 
-    setUsuario({
-
-      email,
-
-      nombre:
-        email.split("@")[0],
-
-    });
+    localStorage.setItem(
+      "usuario",
+      JSON.stringify(usuarioEncontrado)
+    );
 
     setErrorLogin("");
-
     setMostrarLogin(false);
-
     setEmail("");
-
     setPassword("");
+
+  };
+
+  // ===== REGISTRO =====
+
+  const handleRegistro = () => {
+
+    if (
+      !nombreRegistro ||
+      !apellidoRegistro ||
+      !emailRegistro ||
+      !passwordRegistro
+    ) {
+      setErrorRegistro("Completa todos los campos");
+      return;
+    }
+
+    const usuariosGuardados =
+      JSON.parse(
+        localStorage.getItem("usuarios")
+      ) || [];
+
+    const existeUsuario =
+      usuariosGuardados.find(
+        (user) => user.email === emailRegistro
+      );
+
+    if (existeUsuario) {
+      setErrorRegistro("Ese correo ya está registrado");
+      return;
+    }
+
+    const nuevoUsuario = {
+      nombre: nombreRegistro,
+      apellido: apellidoRegistro,
+      email: emailRegistro,
+      password: passwordRegistro,
+    };
+
+    usuariosGuardados.push(nuevoUsuario);
+
+    localStorage.setItem(
+      "usuarios",
+      JSON.stringify(usuariosGuardados)
+    );
+
+    setErrorRegistro("");
+    alert("Cuenta creada correctamente");
+    setMostrarRegistro(false);
 
   };
 
@@ -121,125 +167,44 @@ function Navbar({
 
       <nav className="navbar">
 
-        {/* ===== LOGO ===== */}
-
         <div
           className="logo"
-          onClick={() =>
-            navigate("/")
-          }
+          onClick={() => navigate("/")}
         >
-
-          <h1>
-            ZIPX <span>STORE</span>
-          </h1>
-
+          <h1>ZIPX <span>STORE</span></h1>
         </div>
-
-        {/* ===== LINKS ===== */}
 
         <ul className="nav-links">
 
-          <li
-            className={
-              location.pathname === "/"
-                ? "active"
-                : ""
-            }
-          >
-
-            <Link to="/">
-              Inicio
-            </Link>
-
+          <li className={location.pathname === "/" ? "active" : ""}>
+            <Link to="/">Inicio</Link>
           </li>
 
-          <li
-            className={
-              location.pathname ===
-              "/cursos"
-                ? "active"
-                : ""
-            }
-          >
-
-            <Link to="/cursos">
-              Cursos
-            </Link>
-
+          <li className={location.pathname === "/cursos" ? "active" : ""}>
+            <Link to="/cursos">Cursos</Link>
           </li>
 
-          <li
-            className={
-              location.pathname ===
-              "/categorias"
-                ? "active"
-                : ""
-            }
-          >
-
-            <Link to="/categorias">
-              Categorías
-            </Link>
-
+          <li className={location.pathname === "/categorias" ? "active" : ""}>
+            <Link to="/categorias">Categorías</Link>
           </li>
 
-          <li
-            className={
-              location.pathname ===
-              "/ofertas"
-                ? "active"
-                : ""
-            }
-          >
-
-            <Link to="/ofertas">
-              Ofertas
-            </Link>
-
+          <li className={location.pathname === "/ofertas" ? "active" : ""}>
+            <Link to="/ofertas">Ofertas</Link>
           </li>
 
-          <li
-            className={
-              location.pathname ===
-              "/contacto"
-                ? "active"
-                : ""
-            }
-          >
-
-            <Link to="/contacto">
-              Contacto
-            </Link>
-
+          <li className={location.pathname === "/contacto" ? "active" : ""}>
+            <Link to="/contacto">Contacto</Link>
           </li>
 
           {usuario && (
-
-            <li
-              className={
-                location.pathname ===
-                "/users"
-                  ? "active"
-                  : ""
-              }
-            >
-
-              <Link to="/users">
-                Usuario
-              </Link>
-
+            <li className={location.pathname === "/users" ? "active" : ""}>
+              <Link to="/users">Usuario</Link>
             </li>
-
           )}
 
         </ul>
 
-        {/* ===== RIGHT ===== */}
-
         <div className="nav-right">
-
-          {/* SEARCH */}
 
           <input
             type="text"
@@ -248,69 +213,47 @@ function Navbar({
             onChange={buscarCurso}
           />
 
-          {/* USER */}
-
           <div
             className="user-circle"
             onClick={() =>
-
               usuario
                 ? navigate("/users")
                 : setMostrarLogin(true)
-
             }
           >
-
             {usuario
-              ? usuario.nombre[0].toUpperCase()
+              ? (usuario.nombre || "U")[0].toUpperCase()
               : "👤"}
-
           </div>
 
-          {/* LOGIN / LOGOUT */}
-
           {!usuario ? (
-
             <button
               className="login-btn"
-              onClick={() =>
-                setMostrarLogin(true)
-              }
+              onClick={() => setMostrarLogin(true)}
             >
               Login
             </button>
-
           ) : (
-
             <button
               className="login-btn"
               onClick={logout}
             >
               Salir
             </button>
-
           )}
-
-          {/* ===== CARRITO ===== */}
 
           <div
             className="cart"
             onClick={() =>
-
-              usuario &&
-              setMostrarCarrito(
-                !mostrarCarrito
-              )
-
+              usuario
+                ? navigate("/carrito")
+                : setMostrarLogin(true)
             }
           >
-
             🛒
-
             <span className="cart-count">
               {carrito.length}
             </span>
-
           </div>
 
         </div>
@@ -331,109 +274,61 @@ function Navbar({
             <button
               type="button"
               className="close-login"
-              onClick={() =>
-                setMostrarLogin(false)
-              }
+              onClick={() => setMostrarLogin(false)}
             >
               ✕
             </button>
 
-            <div className="login-icon">
-              🔰
-            </div>
+            <div className="login-icon">🔰</div>
 
-            <h1>
-              Bienvenido
-            </h1>
+            <h1>Bienvenido</h1>
 
             <p className="login-subtitle">
               Inicia sesión para continuar
             </p>
 
-            <label>
-              Correo electrónico
-            </label>
+            <label>Correo electrónico</label>
 
             <input
               type="email"
               placeholder="ejemplo@correo.com"
               value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
+              onChange={(e) => setEmail(e.target.value)}
             />
 
-            <label>
-              Contraseña
-            </label>
+            <label>Contraseña</label>
 
             <input
-              type="password"
+              type={mostrarPassword ? "text" : "password"}
               placeholder="Tu contraseña"
               value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
             />
 
+            <button
+              type="button"
+              onClick={() =>
+                setMostrarPassword(!mostrarPassword)
+              }
+            >
+              {mostrarPassword ? "Ocultar" : "Mostrar"}
+            </button>
+
             {password.length > 0 && (
-
               <div className="password-rules">
-
-                <p>
-                  {tiene8
-                    ? "✅"
-                    : "⚪"}{" "}
-                  Mínimo 8 caracteres
-                </p>
-
-                <p>
-                  {tieneMayus
-                    ? "✅"
-                    : "⚪"}{" "}
-                  1 mayúscula
-                </p>
-
-                <p>
-                  {tieneNumero
-                    ? "✅"
-                    : "⚪"}{" "}
-                  1 número
-                </p>
-
-                <p>
-                  {tieneSimbolo
-                    ? "✅"
-                    : "⚪"}{" "}
-                  1 símbolo
-                </p>
-
+                <p>{tiene8 ? "✅" : "⚪"} Mínimo 8 caracteres</p>
+                <p>{tieneMayus ? "✅" : "⚪"} 1 mayúscula</p>
+                <p>{tieneNumero ? "✅" : "⚪"} 1 número</p>
+                <p>{tieneSimbolo ? "✅" : "⚪"} 1 símbolo</p>
               </div>
-
             )}
 
             <div className="login-options">
-
-              <label>
-
-                <input type="checkbox" />
-
-                Recordarme
-
-              </label>
-
-              <span>
-                ¿Olvidaste tu contraseña?
-              </span>
-
+              <span>¿Olvidaste tu contraseña?</span>
             </div>
 
             {errorLogin && (
-
-              <p className="login-error">
-                {errorLogin}
-              </p>
-
+              <p className="login-error">{errorLogin}</p>
             )}
 
             <button
@@ -444,31 +339,26 @@ function Navbar({
             </button>
 
             <div className="login-divider">
-
               <div></div>
-
-              <p>
-                o continúa con
-              </p>
-
+              <p>o continúa con</p>
               <div></div>
-
             </div>
 
             <div className="google-login">
-
               🌐 Continuar con Google
-
             </div>
 
             <p className="register-text">
-
               ¿No tienes cuenta?{" "}
-
-              <span>
+              <span
+                onClick={() => {
+                  setMostrarLogin(false);
+                  setMostrarRegistro(true);
+                }}
+                style={{ cursor: "pointer", fontWeight: "bold" }}
+              >
                 Regístrate
               </span>
-
             </p>
 
           </form>
@@ -477,46 +367,79 @@ function Navbar({
 
       )}
 
-      {/* ===== CARRITO ===== */}
+      {/* ===== REGISTRO ===== */}
 
-      {mostrarCarrito && (
+      {mostrarRegistro && (
 
-        <div className="cart-panel">
+        <div className="login-overlay">
 
-          <h2>
-            Carrito de compras
-          </h2>
+          <div className="modern-login">
 
-          {carrito.length === 0 ? (
+            <button
+              type="button"
+              className="close-login"
+              onClick={() => setMostrarRegistro(false)}
+            >
+              ✕
+            </button>
 
-            <p>
-              No hay cursos agregados.
+            <div className="login-icon">📝</div>
+
+            <h1>Crear cuenta</h1>
+
+            <p className="login-subtitle">
+              Regístrate para continuar
             </p>
 
-          ) : (
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombreRegistro}
+              onChange={(e) =>
+                setNombreRegistro(e.target.value)
+              }
+            />
 
-            carrito.map(
-              (curso, index) => (
+            <input
+              type="text"
+              placeholder="Apellido"
+              value={apellidoRegistro}
+              onChange={(e) =>
+                setApellidoRegistro(e.target.value)
+              }
+            />
 
-                <div
-                  className="cart-item"
-                  key={index}
-                >
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              value={emailRegistro}
+              onChange={(e) =>
+                setEmailRegistro(e.target.value)
+              }
+            />
 
-                  <h3>
-                    {curso.titulo}
-                  </h3>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={passwordRegistro}
+              onChange={(e) =>
+                setPasswordRegistro(e.target.value)
+              }
+            />
 
-                  <p>
-                    S/ {curso.precio}
-                  </p>
+            {errorRegistro && (
+              <p className="login-error">{errorRegistro}</p>
+            )}
 
-                </div>
+            <button
+              className="login-submit"
+              type="button"
+              onClick={handleRegistro}
+            >
+              Crear cuenta
+            </button>
 
-              )
-            )
-
-          )}
+          </div>
 
         </div>
 
