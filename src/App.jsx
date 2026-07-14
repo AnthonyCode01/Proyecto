@@ -23,9 +23,47 @@ import Admin from "./componentes/Admin";
 
 function App() {
 
+    // ===== SCROLL =====
+
   useEffect(() => {
+
     window.scrollTo(0, 0);
+
   }, []);
+
+// ===== OBTENER CURSOS =====
+
+useEffect(() => {
+
+  const obtenerCursos = async () => {
+
+    try {
+
+      const respuesta = await fetch("http://localhost:3001/cursos");
+
+      if (!respuesta.ok) {
+        throw new Error("Error al obtener los cursos");
+      }
+
+      const datos = await respuesta.json();
+
+console.log("Cursos:", datos);
+
+setCursosData(datos);
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
+
+  obtenerCursos();
+
+}, []);
+
+ // ===== FILTROS =====
 
   const [busqueda, setBusqueda] = useState("");
   const [categoria, setCategoria] = useState("Todos");
